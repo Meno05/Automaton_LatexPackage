@@ -18,6 +18,7 @@ This package requires the following LaTeX packages:
 - `xstring`
 - `etoolbox`
 - `expl3`
+- `ifthen`
 
 ## Installation
 Place the `automaton.sty` file in your working directory or in a directory where LaTeX can find it (e.g., `~/texmf/tex/latex/`).
