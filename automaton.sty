@@ -31,19 +31,19 @@
     \node[state,inner sep=0pt,minimum size=\thecircsize pt] (z#1) at (#2){};
  }
 
-%Defines empty buffer for saving case command to execute them at the end of a automaton environment(allows definintions to states later defined in the code
-\def\allcases{}
+%Defines empty buffer for saving transition command to execute them at the end of a automaton environment(allows definintions to states later defined in the code
+\def\alltransitions{}
 \newcounter{circsize}
 
-% Wrapper for creating cases
+% Wrapper for creating transitions
 \newcommand{\createPath}[4]{%
-   \listadd{\allcases}{\path[->] (z#1) edge [#2] node {$\begin{array}{c}\preprocess{#3}\end{array}$} (z#4);}
-   \listadd{\allcases}{\\}
+   \listadd{\alltransitions}{\path[->] (z#1) edge [#2] node {$\begin{array}{c}\preprocess{#3}\end{array}$} (z#4);}
+   \listadd{\alltransitions}{\\}
 }
 
-%Command to create case(for multiplee cases on one arrow use {a:b,R|c:c,R} syntax)
+%Command to create transition(for multiplee transitions on one arrow use {a:b,R|c:c,R} syntax)
 %use [left] or [right] befor other args to use custom bend direction
-\newcommand{\case}[4][]{
+\newcommand{\transition}[4][]{
 
     \ifthenelse{\equal{#2}{#3}}%
     {\createPath{#2}{loop above}{#4}{#3}}%
@@ -55,7 +55,7 @@
     \fi
     }
 }
-%Allows to use | in the case definiton and have it be interpreted as a \\
+%Allows to use | in the transition definiton and have it be interpreted as a \\
 \ExplSyntaxOn
 \newcommand{\preprocess}[1]{
     \tl_set:Nx \l_tmpa_tl { #1 } % Store #1 in a temporary variable
@@ -69,31 +69,31 @@
     {
     \setcounter{circsize}{#1}
     \addtocounter{circsize}{4}
-    \def\allcases{}
+    \def\alltransitions{}
     
     \begin{tikzpicture}[auto,>=stealth',scale=2]
     \tikzstyle{sstate}=[state,inner sep=0pt,minimum size=30pt]
 }
 {
-    \allcases
+    \alltransitions
     \end{tikzpicture}
 }
 %%Example Use of the Function
 %\begin{automaton}
 %        \startstate{0}{0,0.84}
-%        \case[left]{0}{1}{\Box:1, R|1:1, L}
+%        \transition[left]{0}{1}{\Box:1, R|1:1, L}
 %
 %        \state{1}{1,0}
-%        \case[left]{1}{0}{\Box:1, L}
-%        \case{1}{2}{1:1, L}
+%        \transition[left]{1}{0}{\Box:1, L}
+%        \transition{1}{2}{1:1, L}
 
 %        \state{2}{2.3,0}
-%        \case{2}{2}{1:1, R}
-%        \case{2}{3}{\Box:\Box, L}
+%        \transition{2}{2}{1:1, R}
+%        \transition{2}{3}{\Box:\Box, L}
 
 %        \state{3}{3.6,0}
-%        \case{3}{3}{1:\Box,L}
-%        \case{3}{4}{\Box:\Box, L}
+%        \transition{3}{3}{1:\Box,L}
+%        \transition{3}{4}{\Box:\Box, L}
 
 %        \finstate{4}{4.9,0}
 %    \end{automaton}
