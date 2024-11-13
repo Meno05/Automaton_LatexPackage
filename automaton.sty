@@ -2,7 +2,6 @@
 \ProvidesPackage{automaton}[2024/11/11 Custom, Tikz based package for automatons/Graphs for Turing machines]
 
 %Required Packages
-%\RequirePackage{xstring}
 \RequirePackage{expl3}
 \RequirePackage{ifthen}
 
@@ -12,22 +11,34 @@
 \usetikzlibrary{shapes,calc,automata}
 
 %Wrapper for crating nodes
- \newcommand{\createNode}[3]{
-    \node[sstate #1] (z#2) at (#3) {$z_#2$};
+ \newcommand{\createNode}[4]{
+    \node[sstate #1] (z#2) at (#3) {#4};
  }
 %Command to create node
  %use {name of the node(usually incrementing form 0)}{x pos,y pos}}
- \newcommand{\state}[2]{
-    \createNode{}{#1}{#2}
+ \newcommand{\state}[3][]{
+ \ifx&#1&%
+    \createNode{}{#2}{#3}{$z_#2$}
+\else
+    \createNode{}{#2}{#3}{#1}
+\fi
  }
  %Command to create start node(same use as standart)
- \newcommand{\startstate}[2]{
-    \createNode{,initial by arrow, initial text=}{#1}{#2}
+ \newcommand{\startstate}[3][]{
+ \ifx&#1&%
+    \createNode{,initial by arrow, initial text=}{#2}{#3}{$z_#2$}
+\else
+    \createNode{,initial by arrow, initial text=}{#2}{#3}{#1}
+\fi
  }
  %Command to create end node(same use as standart)
- \newcommand{\finstate}[2]{
-    \createNode{}{#1}{#2}
-    \node[state,inner sep=0pt,minimum size=\thecircsize pt] (z#1) at (#2){};
+ \newcommand{\finstate}[3][]{
+ \ifx&#1&%
+    \createNode{}{#2}{#3}{$z_#2$}
+\else
+    \createNode{}{#2}{#3}{#1}
+\fi
+ \node[state,inner sep=0pt,minimum size=\thecircsize pt] (z#2) at (#3){};
  }
 
 %Defines empty buffer for saving transition command to execute them at the end of a automaton environment(allows definintions to states later defined in the code
@@ -45,15 +56,15 @@
 
 \newcommand{\transition}[4][]{
 
-    \ifthenelse{\equal{#2}{#3}}%
-    {\createPath{#2}{loop above}{#4}{#3}}%
-    {
-    \ifx&#1&%
-        \createPath{#2}{#1}{#4}{#3}
+\ifx&#1&%
+    \ifthenelse{\equal{#2}{#3}}
+    {\createPath{#2}{loop above}{#4}{#3}}
+    {\createPath{#2}{#1}{#4}{#3}}
     \else
-        \createPath{#2}{bend #1}{#4}{#3}
+    \ifthenelse{\equal{#2}{#3}}
+    {\createPath{#2}{loop #1}{#4}{#3}}
+    {\createPath{#2}{bend #1}{#4}{#3}}
     \fi
-    }
 }
 %Allows to use | in the transition definiton and have it be interpreted as a \\
 \ExplSyntaxOn
@@ -68,17 +79,14 @@
 \newenvironment{automaton}[1][30]
     {
     \setcounter{circsize}{#1}
+    %\setcounter{finstate_sc_ring}{#1}
     \addtocounter{circsize}{4}
     \def\alltransitions{}
     
     \begin{tikzpicture}[auto,>=stealth',scale=2]
-    \tikzstyle{sstate}=[state,inner sep=0pt,minimum size=30pt]
+    \tikzstyle{sstate}=[state,inner sep=0pt,minimum size=#1pt]
 }
 {
     \alltransitions
     \end{tikzpicture}
 }
-
-
-
-
