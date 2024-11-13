@@ -15,8 +15,6 @@ The `automaton` package is a custom LaTeX package designed for creating TikZ-bas
 ## Requirements
 This package requires the following LaTeX packages:
 - `tikz` (with various TikZ libraries)
-- `xstring`
-- `etoolbox`
 - `expl3`
 - `ifthen`
 
