@@ -2,8 +2,7 @@
 \ProvidesPackage{automaton}[2024/11/11 Custom, Tikz based package for automatons/Graphs for Turing machines]
 
 %Required Packages
-\RequirePackage{xstring}
-\RequirePackage{etoolbox}
+%\RequirePackage{xstring}
 \RequirePackage{expl3}
 \RequirePackage{ifthen}
 
@@ -43,6 +42,7 @@
 
 %Command to create transition(for multiplee transitions on one arrow use {a:b,R|c:c,R} syntax)
 %use [left] or [right] befor other args to use custom bend direction
+
 \newcommand{\transition}[4][]{
 
     \ifthenelse{\equal{#2}{#3}}%
@@ -78,25 +78,7 @@
     \alltransitions
     \end{tikzpicture}
 }
-%%Example Use of the Function
-%\begin{automaton}
-%        \startstate{0}{0,0.84}
-%        \transition[left]{0}{1}{\Box:1, R|1:1, L}
-%
-%        \state{1}{1,0}
-%        \transition[left]{1}{0}{\Box:1, L}
-%        \transition{1}{2}{1:1, L}
 
-%        \state{2}{2.3,0}
-%        \transition{2}{2}{1:1, R}
-%        \transition{2}{3}{\Box:\Box, L}
-
-%        \state{3}{3.6,0}
-%        \transition{3}{3}{1:\Box,L}
-%        \transition{3}{4}{\Box:\Box, L}
-
-%        \finstate{4}{4.9,0}
-%    \end{automaton}
 
 
 
