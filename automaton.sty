@@ -4,6 +4,7 @@
 %Required Packages
 \RequirePackage{expl3}
 \RequirePackage{ifthen}
+%\RequirePackage{xparse}
 
 % Load TikZ
 \RequirePackage{tikz}
@@ -14,9 +15,63 @@
  \newcommand{\createNode}[4]{
     \node[sstate #1] (z#2) at (#3) {#4};
  }
-%Command to create node
- %use {name of the node(usually incrementing form 0)}{x pos,y pos}}
- \newcommand{\state}[3][]{
+
+
+
+%Defines empty buffer for saving transition command to execute them at the end of a automaton environment(allows definintions to states later defined in the code
+\def\alltransitions{}
+\newcounter{circsize}
+
+% Wrapper for creating paths
+\newcommand{\createPath}[5]{%
+   \listadd{\allpaths}{\path[#5] (z#1) edge [#2] node {$\begin{array}{c}\preprocess{#3}\end{array}$} (z#4);}
+   \listadd{\allpaths}{\\}
+}
+
+%Allows to use | in the transition definiton and have it be interpreted as a \\
+\ExplSyntaxOn
+\newcommand{\preprocess}[1]{
+    \tl_set:Nx \l_tmpa_tl { #1 } % Store #1 in a temporary variable
+    \tl_replace_all:Nnn \l_tmpa_tl {|}{\\} % Replace | with \\ in l_tmpa_tl
+    \l_tmpa_tl
+}
+\ExplSyntaxOff
+
+%Creates an automaton
+\newenvironment{automaton}[1][30]
+    {
+    \setcounter{circsize}{#1}
+    %\setcounter{finstate_sc_ring}{#1}
+    \addtocounter{circsize}{4}
+    \def\allpaths{}
+    
+    \begin{tikzpicture}[auto,>=stealth',scale=2]
+    \tikzstyle{sstate}=[state,inner sep=0pt,minimum size=#1pt]
+}
+{
+    \allpaths
+    \end{tikzpicture}
+}
+
+%Command to create transition(for multiplee transitions on one arrow use {a:b,R|c:c,R} syntax)
+%use [left] or [right] befor other args to use custom bend direction
+
+%\NewDocumentCommand{\transition}{ O{} O{->} m m m}{
+\newcommand{\transition}[4][]{
+        \ifx&#1&%
+            \ifthenelse{\equal{#2}{#3}}
+            {\createPath{#2}{loop above}{#4}{#3}{->}}
+            {\createPath{#2}{#1}{#4}{#3}{->}}
+            \else
+            \ifthenelse{\equal{#2}{#3}}
+            {\createPath{#2}{loop #1}{#4}{#3}{->}}
+            {\createPath{#2}{bend #1}{#4}{#3}{->}}
+            \fi
+    }
+
+%Command to create state
+ %use {name of the state(usually incrementing form 0)}{x pos,y pos}}
+\newcommand{\state}[3][]{
  \ifx&#1&%
     \createNode{}{#2}{#3}{$z_#2$}
 \else
@@ -41,52 +96,42 @@
  \node[state,inner sep=0pt,minimum size=\thecircsize pt] (z#2) at (#3){};
  }
 
-%Defines empty buffer for saving transition command to execute them at the end of a automaton environment(allows definintions to states later defined in the code
-\def\alltransitions{}
-\newcounter{circsize}
 
-% Wrapper for creating transitions
-\newcommand{\createPath}[4]{%
-   \listadd{\alltransitions}{\path[->] (z#1) edge [#2] node {$\begin{array}{c}\preprocess{#3}\end{array}$} (z#4);}
-   \listadd{\alltransitions}{\\}
-}
-
-%Command to create transition(for multiplee transitions on one arrow use {a:b,R|c:c,R} syntax)
-%use [left] or [right] befor other args to use custom bend direction
-
-\newcommand{\transition}[4][]{
-
-\ifx&#1&%
-    \ifthenelse{\equal{#2}{#3}}
-    {\createPath{#2}{loop above}{#4}{#3}}
-    {\createPath{#2}{#1}{#4}{#3}}
-    \else
-    \ifthenelse{\equal{#2}{#3}}
-    {\createPath{#2}{loop #1}{#4}{#3}}
-    {\createPath{#2}{bend #1}{#4}{#3}}
-    \fi
-}
-%Allows to use | in the transition definiton and have it be interpreted as a \\
-\ExplSyntaxOn
-\newcommand{\preprocess}[1]{
-    \tl_set:Nx \l_tmpa_tl { #1 } % Store #1 in a temporary variable
-    \tl_replace_all:Nnn \l_tmpa_tl {|}{\\} % Replace | with \\ in l_tmpa_tl
-    \l_tmpa_tl
-}
-\ExplSyntaxOff
-
-%creates environment for automatons with x circlesize
-\newenvironment{automaton}[1][30]
+%Creates an unidirectional Graph
+\newenvironment{graph}[1][30]
     {
+    
     \setcounter{circsize}{#1}
     %\setcounter{finstate_sc_ring}{#1}
     \addtocounter{circsize}{4}
-    \def\alltransitions{}
+    \def\allpaths{}
     
     \begin{tikzpicture}[auto,>=stealth',scale=2]
     \tikzstyle{sstate}=[state,inner sep=0pt,minimum size=#1pt]
 }
 {
-    \alltransitions
+    \allpaths
     \end{tikzpicture}
 }
+
+%Command to create vertex
+ \newcommand{\vertex}[3][]{
+ \ifx&#1&%
+    \createNode{}{#2}{#3}{ }
+\else
+    \createNode{}{#2}{#3}{#1}
+\fi
+ }
+
+%Creates and edge in a Graph(cannot be labeled)
+\newcommand{\edge}[3][]{
+        \ifx&#1&%
+            \ifthenelse{\equal{#2}{#3}}
+            {\createPath{#2}{loop above}{ }{#3}{-}}
+            {\createPath{#2}{#1}{ }{#3}{-}}
+            \else
+            \ifthenelse{\equal{#2}{#3}}
+            {\createPath{#2}{loop #1}{ }{#3}{-}}
+            {\createPath{#2}{bend #1}{ }{#3}{-}}
+            \fi
+    }
