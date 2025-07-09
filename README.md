@@ -4,7 +4,7 @@
 **Author**: [Tomke Quintus Pfoch, Matthias Wagner]
 
 ## Overview
-The `automaton` package is a custom LaTeX package designed for creating TikZ-based automatons, Turing machine and omidirectional graphs graphs. It simplifies the process of creating nodes, start states, end states, and transitions.
+The `automaton` package is a custom LaTeX package designed for creating TikZ-based automatons, Turing machines and omidirectional graphs graphs. It simplifies the process of creating nodes, start states, end states, and transitions.
 
 ## Features
 - Environment for automaton diagrams.
